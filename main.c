@@ -1,37 +1,56 @@
 #include <xc.h>
 
-// Configuration bits
-#pragma config OSC = HS
-#pragma config WDT = OFF
-#pragma config LVP = OFF
+// ================= CONFIGURATION BITS =================
+#pragma config OSC = HS     // High-speed oscillator
+#pragma config WDT = OFF    // Watchdog Timer disabled
+#pragma config LVP = OFF    // Low Voltage Programming disabled
 
-#define LED LATBbits.LATB0
-#define BUTTON PORTBbits.RB1
+// ================= MACROS =================
+#define LED     LATBbits.LATB0
+#define BUTTON  PORTBbits.RB1
 
-void delay()
+// ================= FUNCTION PROTOTYPE =================
+void delay_ms(unsigned int ms);
+
+// ================= MAIN FUNCTION =================
+void main(void)
 {
-    for(int i = 0; i < 30000; i++);
-}
+    // Configure all pins as digital
+    ADCON1 = 0x0F;
 
-void main()
-{
-    TRISBbits.TRISB0 = 0; // LED as output
-    TRISBbits.TRISB1 = 1; // Button as input
+    // Set pin directions
+    TRISBbits.TRISB0 = 0;   // LED as output
+    TRISBbits.TRISB1 = 1;   // Button as input
 
-    LED = 0; // Initially OFF
+    // Initialize LED state
+    LED = 0;
 
     while(1)
     {
+        // Check if button is pressed
         if(BUTTON == 1)
         {
-            delay(); // debounce
+            delay_ms(50);  // Debounce delay
 
-            if(BUTTON == 1) // confirm press
+            // Confirm button press
+            if(BUTTON == 1)
             {
-                LED = !LED; // toggle LED
+                LED = !LED;   // Toggle LED
 
-                while(BUTTON == 1); // wait until button release
+                // Wait until button is released
+                while(BUTTON == 1);
             }
         }
+    }
+}
+
+// ================= DELAY FUNCTION =================
+void delay_ms(unsigned int ms)
+{
+    unsigned int i, j;
+
+    for(i = 0; i < ms; i++)
+    {
+        for(j = 0; j < 255; j++);
     }
 }
